@@ -624,11 +624,15 @@ export class NeoVis {
 		this.#consoleLog(record?.constructor.name);
 		this.#consoleLog(record);
 
+		const dataInfoLength = this.#dataInfo.length;
+		this.#dataInfo.push(record);
+
 		const dataPromises = record.map(async (v: object) => {
 			this.#consoleLog('Constructor:');
 			this.#consoleLog(v?.constructor.name);
 			if (isNode(v)) {
-				const node = await this.#buildNodeVisObject(v);
+				let node = await this.#buildNodeVisObject(v);
+				node['index'] = dataInfoLength;
 				try {
 					this.#data.nodes.update(node);
 				} catch (e) {
@@ -636,14 +640,19 @@ export class NeoVis {
 				}
 
 			} else if (isRelationship(v)) {
-				const edge = await this.#buildEdgeVisObject(v);
+				let edge = await this.#buildEdgeVisObject(v);
+				edge.id = this.#data.edges.length;
+				edge['index'] = dataInfoLength;
 				this.#data.edges.update(edge);
 
 			} else if (isPath(v)) {
 				this.#consoleLog('PATH');
 				this.#consoleLog(v);
-				const startNode = await this.#buildNodeVisObject(v.start);
-				const endNode = await this.#buildNodeVisObject(v.end);
+				let startNode = await this.#buildNodeVisObject(v.start);
+				let endNode = await this.#buildNodeVisObject(v.end);
+
+				startNode['index'] = dataInfoLength;
+				endNode['index'] = dataInfoLength;
 
 				this.#data.nodes.update(startNode);
 				this.#data.nodes.update(endNode);
@@ -659,12 +668,13 @@ export class NeoVis {
 					this.#consoleLog('Array element constructor:');
 					this.#consoleLog(obj?.constructor.name);
 					if (isNode(obj)) {
-						const node = await this.#buildNodeVisObject(obj);
+						let node = await this.#buildNodeVisObject(obj);
+						node['index'] = dataInfoLength;
 						this.#data.nodes.update(node);
 
 					} else if (isRelationship(obj)) {
 						const edge = await this.#buildEdgeVisObject(obj);
-
+						edge['index'] = dataInfoLength;
 						this.#data.edges.update(edge);
 					}
 				}
