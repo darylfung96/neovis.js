@@ -237,6 +237,7 @@ export class NeoVis {
 		nodes: new vis.DataSet<Node>(),
 		edges: new vis.DataSet<Edge>()
 	};
+	#dataInfo: (Neo4jTypes.Record | Partial<Neo4jTypes.Record>)[] = [];
 	#network: VisNetwork.Network = null;
 	#events = new EventController();
 	#config: NeovisConfig | NonFlatNeovisConfig;
